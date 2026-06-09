@@ -21,4 +21,21 @@ This repository is intended to connect real-world sensing, navigation, estimatio
 
 ## Current status
 
-Initial project structure and plan.
+The project now has an initial real phone-IMU sanity check.
+
+## First sensor sanity check
+
+The first controlled phone-IMU recording has been collected and inspected.
+
+The log is a short indoor room test, about 35.6 seconds long, with accelerometer, gyroscope, orientation, magnetometer, compass, and total acceleration streams sampled at about 100 Hz. The raw phone CSV files are kept out of the repository, but the generated summary and plots are included.
+
+Generated outputs:
+
+- `results/room_test_01_sensor_summary.csv`
+- `figures/room_test_01_accelerometer.png`
+- `figures/room_test_01_gyroscope.png`
+- `figures/room_test_01_orientation.png`
+- `figures/room_test_01_compass.png`
+- `figures/room_test_01_total_acceleration_norm.png`
+
+This first test does not estimate a trajectory yet. It only checks that the phone sensor logs are readable, time-stamped consistently, and active enough to support the next navigation experiments.
