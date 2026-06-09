@@ -14,3 +14,10 @@ results/*
 
 figures/*
 !figures/.gitkeep
+
+# Private phone sensor logs
+/data/raw/private/
+
+# Track selected public outputs from the first controlled phone-IMU test
+!figures/room_test_01_*.png
+!results/room_test_01_sensor_summary.csv

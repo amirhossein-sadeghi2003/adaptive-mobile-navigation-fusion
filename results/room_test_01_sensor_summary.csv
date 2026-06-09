@@ -1,0 +1,7 @@
+file,rows,duration_s,median_dt_s,approx_sample_rate_hz,columns
+Accelerometer.csv,3543,35.64,0.01001,99.92,"time, seconds_elapsed, z, y, x"
+Compass.csv,3546,35.71,0.01,100.0,"time, seconds_elapsed, magneticBearing"
+Gyroscope.csv,3544,35.66,0.01001,99.92,"time, seconds_elapsed, z, y, x"
+Magnetometer.csv,3546,35.71,0.01,100.0,"time, seconds_elapsed, z, y, x"
+Orientation.csv,3540,35.64,0.01001,99.92,"time, seconds_elapsed, qz, qy, qx, qw, roll, pitch, yaw"
+TotalAcceleration.csv,3549,35.68,0.01001,99.92,"time, seconds_elapsed, z, y, x"
