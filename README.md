@@ -39,3 +39,17 @@ Generated outputs:
 - `figures/room_test_01_total_acceleration_norm.png`
 
 This first test does not estimate a trajectory yet. It only checks that the phone sensor logs are readable, time-stamped consistently, and active enough to support the next navigation experiments.
+
+## First GPS walk sanity check
+
+A short outdoor GPS walk was also recorded and converted into local east/north coordinates relative to the starting point.
+
+The recording is about 34.2 seconds long and contains 68 GPS samples. The median horizontal accuracy is about 4.1 m, but the first few fixes are much worse, so the raw trajectory does not appear as straight as the actual walk. This is useful as an early reminder that phone GPS needs filtering and reliability checks before it can be trusted for navigation experiments.
+
+Generated outputs:
+
+- `results/gps_walk_01_location_summary.csv`
+- `figures/gps_walk_01_local_trajectory.png`
+- `figures/gps_walk_01_filtered_trajectory.png`
+- `figures/gps_walk_01_gps_accuracy.png`
+- `figures/gps_walk_01_gps_speed.png`
