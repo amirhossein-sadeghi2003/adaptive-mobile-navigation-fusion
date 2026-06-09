@@ -21,3 +21,7 @@ figures/*
 # Track selected public outputs from the first controlled phone-IMU test
 !figures/room_test_01_*.png
 !results/room_test_01_sensor_summary.csv
+
+# Track selected public outputs from the first GPS walk sanity check
+!figures/gps_walk_01_*.png
+!results/gps_walk_01_location_summary.csv

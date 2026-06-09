@@ -1,0 +1,2 @@
+rows,duration_s,approx_sample_rate_hz,median_horizontal_accuracy_m,max_distance_from_start_m,total_gps_path_length_m,median_reported_speed_mps,max_reported_speed_mps
+68,34.211,2.114,4.058,11.865,47.326,0.724,1.62
