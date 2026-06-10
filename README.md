@@ -67,3 +67,19 @@ Generated outputs:
 - `figures/gps_walk_02_filtered_trajectory.png`
 - `figures/gps_walk_02_gps_accuracy.png`
 - `figures/gps_walk_02_gps_speed.png`
+
+## GPS-only baseline
+
+A first GPS-only baseline was built from the longer walk.
+
+The raw latitude and longitude values are not stored in the public baseline file. The script converts GPS fixes into local east/north coordinates relative to the start point, then computes step distance, cumulative path length, distance from start, and speed from consecutive GPS positions.
+
+The baseline is useful, but it also shows the main GPS problem clearly. The reported GPS speed stays close to normal walking speed, while the speed computed directly from point-to-point GPS displacement has sharp spikes. In this run, the maximum computed speed reaches about 8.3 m/s, which is not realistic for the walk. This is a good reason to add smoothing, Kalman filtering, and later GPS reliability estimation.
+
+Generated outputs:
+
+- `results/gps_walk_02_gps_baseline.csv`
+- `results/gps_walk_02_gps_baseline_summary.csv`
+- `figures/gps_walk_02_gps_baseline_trajectory.png`
+- `figures/gps_walk_02_gps_baseline_speed_compare.png`
+- `figures/gps_walk_02_gps_baseline_cumulative_distance.png`
