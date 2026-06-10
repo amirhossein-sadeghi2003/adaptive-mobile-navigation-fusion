@@ -31,3 +31,5 @@ figures/*
 !results/gps_walk_02_location_summary.csv
 !results/gps_walk_02_gps_baseline.csv
 !results/gps_walk_02_gps_baseline_summary.csv
+!results/gps_walk_02_kalman_baseline.csv
+!results/gps_walk_02_kalman_baseline_summary.csv

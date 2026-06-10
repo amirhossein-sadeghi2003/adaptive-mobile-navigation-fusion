@@ -1,0 +1,2 @@
+rows,duration_s,median_gps_accuracy_m,raw_gps_path_length_m,kalman_path_length_m,median_innovation_m,median_residual_m,max_raw_computed_speed_mps,max_kalman_speed_mps,median_kalman_speed_mps
+283,122.797,3.009,139.018,141.439,0.273,0.198,8.318,2.252,1.088
