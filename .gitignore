@@ -25,3 +25,7 @@ figures/*
 # Track selected public outputs from the first GPS walk sanity check
 !figures/gps_walk_01_*.png
 !results/gps_walk_01_location_summary.csv
+
+# Track selected public outputs from the second GPS walk
+!figures/gps_walk_02_*.png
+!results/gps_walk_02_location_summary.csv
