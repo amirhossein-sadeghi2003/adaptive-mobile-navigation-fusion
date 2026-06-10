@@ -53,3 +53,17 @@ Generated outputs:
 - `figures/gps_walk_01_filtered_trajectory.png`
 - `figures/gps_walk_01_gps_accuracy.png`
 - `figures/gps_walk_01_gps_speed.png`
+
+## Longer GPS walk
+
+A second outdoor walk was recorded with a longer path and a more stable GPS signal.
+
+This recording is about 122.8 seconds long and contains 283 GPS samples. The median horizontal accuracy is about 3.0 m, and the local trajectory shows a clearer out-and-back walking pattern than the first short GPS test. This log is a better candidate for the first GPS-only baseline.
+
+Generated outputs:
+
+- `results/gps_walk_02_location_summary.csv`
+- `figures/gps_walk_02_local_trajectory.png`
+- `figures/gps_walk_02_filtered_trajectory.png`
+- `figures/gps_walk_02_gps_accuracy.png`
+- `figures/gps_walk_02_gps_speed.png`
