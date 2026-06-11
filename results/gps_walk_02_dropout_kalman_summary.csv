@@ -1,0 +1,2 @@
+rows,duration_s,dropout_start_s,dropout_end_s,dropout_rows,median_gps_accuracy_m,raw_gps_path_length_m,dropout_kalman_path_length_m,max_position_error_to_gps_m,max_dropout_position_error_to_gps_m,median_dropout_position_error_to_gps_m,max_dropout_kalman_speed_mps,max_position_std_m,max_dropout_position_std_m,final_position_error_to_gps_m
+283,122.797,55.0,70.0,28,3.009,139.018,169.001,25.929,25.929,14.353,1.025,39.667,39.667,0.375

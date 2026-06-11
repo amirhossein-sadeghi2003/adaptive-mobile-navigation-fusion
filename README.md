@@ -13,6 +13,7 @@ This project uses real phone-collected GPS/IMU logs to build a small navigation-
 | Longer GPS walk | 122.8 s | 283 GPS samples | The out-and-back walking path is visible and usable for a first baseline. |
 | GPS-only baseline | 122.8 s | 283 GPS samples | Point-to-point GPS speed has unrealistic spikes up to about 8.3 m/s. |
 | Kalman baseline | 122.8 s | 283 GPS samples | Kalman speed stays more realistic, with max speed around 2.25 m/s and median speed around 1.09 m/s. |
+| GPS dropout simulation | 122.8 s | 283 GPS samples | During a simulated 55-70 s GPS outage, the prediction-only Kalman estimate drifts up to about 25.9 m from GPS before recovering after GPS updates return. |
 
 ## Longer GPS walk
 
@@ -46,6 +47,18 @@ The estimated trajectory still follows the same general out-and-back path.
 
 ![Kalman trajectory](figures/gps_walk_02_kalman_trajectory.png)
 
+## GPS dropout simulation
+
+To test navigation robustness, I simulated a GPS outage from 55 s to 70 s on the longer walk. During that window, the Kalman filter keeps predicting motion but does not use GPS position updates.
+
+The result is expected: uncertainty grows during the outage, and the estimate drifts away from the withheld GPS samples. In this run, the largest position difference during dropout was about 25.9 m. Once GPS updates return, the filter quickly moves back toward the measured path.
+
+![GPS dropout trajectory](figures/gps_walk_02_dropout_trajectory.png)
+
+The uncertainty plot makes the failure mode easier to see than the trajectory plot alone.
+
+![GPS dropout error](figures/gps_walk_02_dropout_error.png)
+
 ## Generated outputs
 
 Main result files:
@@ -54,6 +67,8 @@ Main result files:
 - `results/gps_walk_02_gps_baseline_summary.csv`
 - `results/gps_walk_02_kalman_baseline.csv`
 - `results/gps_walk_02_kalman_baseline_summary.csv`
+- `results/gps_walk_02_dropout_kalman.csv`
+- `results/gps_walk_02_dropout_kalman_summary.csv`
 
 Main scripts:
 
@@ -61,13 +76,13 @@ Main scripts:
 - `src/plot_gps_walk.py`
 - `src/build_gps_baseline.py`
 - `src/run_kalman_gps_baseline.py`
+- `src/simulate_gps_dropout.py`
 
 ## Planned direction
 
 Next steps:
 
 - compare GPS-only smoothing against Kalman filtering
-- simulate GPS dropout on the longer walk
 - test artificial GPS jumps
 - use IMU-derived features for sensor reliability checks
 - build an adaptive fusion experiment
@@ -78,4 +93,5 @@ Next steps:
 - phone IMU orientation is not fixed to a robot body frame
 - the current Kalman filter uses GPS positions only
 - the current test path is simple and mostly straight
-- future tests should include turns, stops, and controlled GPS dropout
+- the dropout experiment is simulated from logged GPS data, not a live sensor failure
+- future tests should include turns, stops, and live controlled GPS dropout
