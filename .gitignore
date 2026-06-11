@@ -35,3 +35,5 @@ figures/*
 !results/gps_walk_02_kalman_baseline_summary.csv
 !results/gps_walk_02_dropout_kalman.csv
 !results/gps_walk_02_dropout_kalman_summary.csv
+!results/gps_walk_02_jump_kalman.csv
+!results/gps_walk_02_jump_kalman_summary.csv

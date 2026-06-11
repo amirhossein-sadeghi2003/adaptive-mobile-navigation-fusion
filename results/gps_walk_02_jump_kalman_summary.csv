@@ -1,0 +1,2 @@
+rows,duration_s,jump_start_s,jump_end_s,jump_rows,jump_offset_x_m,jump_offset_y_m,jump_offset_norm_m,median_gps_accuracy_m,raw_gps_path_length_m,jump_kalman_path_length_m,max_position_error_to_clean_gps_m,max_jump_window_position_error_to_clean_gps_m,median_jump_window_position_error_to_clean_gps_m,max_jump_window_innovation_m,max_jump_window_kalman_speed_mps,final_position_error_to_clean_gps_m
+283,122.797,80.0,90.0,25,20.0,-10.0,22.361,3.009,139.018,192.202,26.543,26.543,23.299,22.45,4.999,0.375
