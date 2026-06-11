@@ -14,6 +14,7 @@ This project uses real phone-collected GPS/IMU logs to build a small navigation-
 | GPS-only baseline | 122.8 s | 283 GPS samples | Point-to-point GPS speed has unrealistic spikes up to about 8.3 m/s. |
 | Kalman baseline | 122.8 s | 283 GPS samples | Kalman speed stays more realistic, with max speed around 2.25 m/s and median speed around 1.09 m/s. |
 | GPS dropout simulation | 122.8 s | 283 GPS samples | During a simulated 55-70 s GPS outage, the prediction-only Kalman estimate drifts up to about 25.9 m from GPS before recovering after GPS updates return. |
+| GPS jump simulation | 122.8 s | 283 GPS samples | A simulated 22.4 m GPS position jump pulls the simple Kalman estimate away from the clean path, with position error reaching about 26.5 m. |
 
 ## Longer GPS walk
 
@@ -59,6 +60,18 @@ The uncertainty plot makes the failure mode easier to see than the trajectory pl
 
 ![GPS dropout error](figures/gps_walk_02_dropout_error.png)
 
+## GPS jump simulation
+
+Dropout is one failure mode. A different problem is bad GPS that still looks like a valid measurement. To test that case, I injected a 20 m east and -10 m north offset from 80 s to 90 s.
+
+The simple Kalman filter follows the corrupted GPS instead of rejecting it. In this run, a 22.4 m injected GPS jump caused the Kalman position error to reach about 26.5 m relative to the clean GPS path. When the GPS returns to the clean path, the filter recovers, but the speed estimate briefly spikes.
+
+![GPS jump trajectory](figures/gps_walk_02_jump_trajectory.png)
+
+The error plot shows why a plain Kalman filter is not enough for GPS fault handling. A next step would be innovation gating or a GPS reliability score before accepting position updates.
+
+![GPS jump error](figures/gps_walk_02_jump_error.png)
+
 ## Generated outputs
 
 Main result files:
@@ -69,6 +82,8 @@ Main result files:
 - `results/gps_walk_02_kalman_baseline_summary.csv`
 - `results/gps_walk_02_dropout_kalman.csv`
 - `results/gps_walk_02_dropout_kalman_summary.csv`
+- `results/gps_walk_02_jump_kalman.csv`
+- `results/gps_walk_02_jump_kalman_summary.csv`
 
 Main scripts:
 
@@ -77,13 +92,14 @@ Main scripts:
 - `src/build_gps_baseline.py`
 - `src/run_kalman_gps_baseline.py`
 - `src/simulate_gps_dropout.py`
+- `src/simulate_gps_jump.py`
 
 ## Planned direction
 
 Next steps:
 
 - compare GPS-only smoothing against Kalman filtering
-- test artificial GPS jumps
+- add outlier rejection or innovation gating for GPS jumps
 - use IMU-derived features for sensor reliability checks
 - build an adaptive fusion experiment
 
@@ -94,4 +110,5 @@ Next steps:
 - the current Kalman filter uses GPS positions only
 - the current test path is simple and mostly straight
 - the dropout experiment is simulated from logged GPS data, not a live sensor failure
+- the GPS jump experiment uses an injected offset, not a real spoofing device
 - future tests should include turns, stops, and live controlled GPS dropout
