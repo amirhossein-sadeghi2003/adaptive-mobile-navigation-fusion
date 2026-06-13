@@ -15,6 +15,7 @@ This project uses real phone-collected GPS/IMU logs to build a small navigation-
 | Kalman baseline | 122.8 s | 283 GPS samples | Kalman speed stays more realistic, with max speed around 2.25 m/s and median speed around 1.09 m/s. |
 | GPS dropout simulation | 122.8 s | 283 GPS samples | During a simulated 55-70 s GPS outage, the prediction-only Kalman estimate drifts up to about 25.9 m from GPS before recovering after GPS updates return. |
 | GPS jump simulation | 122.8 s | 283 GPS samples | A simulated 22.4 m GPS position jump pulls the simple Kalman estimate away from the clean path, with position error reaching about 26.5 m. |
+| GPS jump with innovation gating | 122.8 s | 283 GPS samples | A simple innovation gate rejects all 25 jumped GPS updates and reduces max jump-window error from about 26.5 m to about 3.8 m. |
 
 ## Longer GPS walk
 
@@ -72,6 +73,18 @@ The error plot shows why a plain Kalman filter is not enough for GPS fault handl
 
 ![GPS jump error](figures/gps_walk_02_jump_error.png)
 
+## GPS jump with innovation gating
+
+The previous jump test showed a weakness: a plain Kalman filter trusts the corrupted GPS measurements. I added a simple innovation gate before the update step. If the GPS innovation is too large, the filter skips that measurement and keeps predicting.
+
+With a 4-sigma gate and a minimum gate of 8 m, the filter rejected all 25 GPS updates during the injected jump window. The maximum jump-window position error dropped from about 26.5 m without gating to about 3.8 m with gating.
+
+![GPS jump gating error](figures/gps_walk_02_jump_gating_error.png)
+
+The gate decision plot shows the rejected updates during the artificial GPS jump.
+
+![GPS jump gating decisions](figures/gps_walk_02_jump_gating_decisions.png)
+
 ## Generated outputs
 
 Main result files:
@@ -84,6 +97,8 @@ Main result files:
 - `results/gps_walk_02_dropout_kalman_summary.csv`
 - `results/gps_walk_02_jump_kalman.csv`
 - `results/gps_walk_02_jump_kalman_summary.csv`
+- `results/gps_walk_02_jump_gated_kalman.csv`
+- `results/gps_walk_02_jump_gating_comparison_summary.csv`
 
 Main scripts:
 
@@ -93,13 +108,14 @@ Main scripts:
 - `src/run_kalman_gps_baseline.py`
 - `src/simulate_gps_dropout.py`
 - `src/simulate_gps_jump.py`
+- `src/compare_gps_jump_gating.py`
 
 ## Planned direction
 
 Next steps:
 
 - compare GPS-only smoothing against Kalman filtering
-- add outlier rejection or innovation gating for GPS jumps
+- test a softer GPS reliability score instead of a hard gate
 - use IMU-derived features for sensor reliability checks
 - build an adaptive fusion experiment
 
@@ -111,4 +127,5 @@ Next steps:
 - the current test path is simple and mostly straight
 - the dropout experiment is simulated from logged GPS data, not a live sensor failure
 - the GPS jump experiment uses an injected offset, not a real spoofing device
+- the current innovation gate is a simple fixed-threshold rule, not an adaptive reliability model
 - future tests should include turns, stops, and live controlled GPS dropout
