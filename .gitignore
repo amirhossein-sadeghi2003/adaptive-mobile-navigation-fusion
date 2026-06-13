@@ -39,3 +39,5 @@ figures/*
 !results/gps_walk_02_jump_kalman_summary.csv
 !results/gps_walk_02_jump_gated_kalman.csv
 !results/gps_walk_02_jump_gating_comparison_summary.csv
+!results/gps_walk_02_jump_reliability_weighted_kalman.csv
+!results/gps_walk_02_jump_reliability_comparison_summary.csv
