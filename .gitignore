@@ -43,3 +43,4 @@ figures/*
 !results/gps_walk_02_jump_reliability_comparison_summary.csv
 !results/gps_walk_02_fusion.csv
 !results/gps_walk_02_fusion_summary.csv
+!results/gps_walk_02_heading_offsets.csv

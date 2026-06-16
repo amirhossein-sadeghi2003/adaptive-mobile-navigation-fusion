@@ -1,0 +1,2 @@
+moving_samples,median_compass_minus_gps_deg,median_yaw_minus_gps_deg,median_compass_minus_yaw_deg,std_compass_minus_gps_deg,std_yaw_minus_gps_deg
+258,0.17,-0.88,4.43,32.72,30.89
