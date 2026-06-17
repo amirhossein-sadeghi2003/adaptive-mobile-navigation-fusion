@@ -1,0 +1,2 @@
+dropout_start_s,dropout_end_s,dropout_samples,entry_t_s,entry_heading_deg,assumed_speed_mps,heading_sign,cv_max_error_m,cv_final_error_m,imu_max_error_m,imu_final_error_m,max_error_reduction_pct
+55.0,70.0,28,54.796,-85.06,0.856,-1.0,23.19,23.19,17.229,17.229,25.7
