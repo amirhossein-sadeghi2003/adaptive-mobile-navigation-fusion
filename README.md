@@ -2,7 +2,7 @@
 
 Phone GPS is noisy enough that a straight walk does not always look straight on a plot.
 
-This project uses real phone-collected GPS/IMU logs to build a small navigation-estimation pipeline. The first milestone is a GPS-only baseline, followed by a simple Kalman filter for 2D motion.
+This project uses real phone-collected GPS/IMU logs to build a small navigation-estimation pipeline. It starts from a GPS-only baseline and a simple 2D Kalman filter, then adds GPS fault tests and a first GPS/IMU step that uses the phone IMU to hold heading through a GPS outage.
 
 ## Current results
 
@@ -16,6 +16,7 @@ This project uses real phone-collected GPS/IMU logs to build a small navigation-
 | GPS dropout simulation | 122.8 s | 283 GPS samples | During a simulated 55-70 s GPS outage, the prediction-only Kalman estimate drifts up to about 25.9 m from GPS before recovering after GPS updates return. |
 | GPS jump simulation | 122.8 s | 283 GPS samples | A simulated 22.4 m GPS position jump pulls the simple Kalman estimate away from the clean path, with position error reaching about 26.5 m. |
 | GPS jump with innovation gating | 122.8 s | 283 GPS samples | A simple innovation gate rejects all 25 jumped GPS updates and reduces max jump-window error from about 26.5 m to about 3.8 m. |
+| IMU-aided dropout dead reckoning | 122.8 s | 283 GPS samples | Over a simulated 55-70 s outage (28 withheld samples), adding IMU heading change to a constant-speed dead reckoning cut the max drift from about 23.2 m (no turning) to about 17.2 m, roughly 25.7% lower. |
 
 ## Longer GPS walk
 
@@ -85,6 +86,27 @@ The gate decision plot shows the rejected updates during the artificial GPS jump
 
 ![GPS jump gating decisions](figures/gps_walk_02_jump_gating_decisions.png)
 
+## IMU-heading dead reckoning during GPS dropout
+
+The earlier dropout test let the Kalman filter coast on its last velocity, and the estimate drifted about 25.9 m before GPS returned. That version has no way to know the person turned during the outage. This experiment asks a narrower question: if I hold the speed fixed but let the phone IMU tell me how the heading changed, how much of that drift goes away?
+
+I rebuilt the outage as a dead-reckoning problem on the synced GPS+IMU table from milestone 1. At the last moving GPS sample before 55 s, I take the GPS course-over-ground as the starting heading and the mean speed over the previous 5 s (0.856 m/s) as a fixed speed. Across the 55-70 s window (28 withheld samples) I propagate position two ways, using the same speed and entry heading so the only difference is the turning:
+
+- no turning: heading frozen at the entry value
+- IMU heading: heading turned at each step by the change in `orientation_yaw`, not its absolute value
+
+Using the change and not the absolute yaw comes straight from the milestone 2 heading check. GPS bearing, orientation yaw, and compass bearing each had a standard deviation near 30 deg on this walk, so no single one is a trustworthy absolute reference. The turn between two nearby samples is far more reliable than any one heading reading.
+
+![Dead reckoning during dropout: no-turn vs IMU heading](figures/gps_walk_02_dropout_imu_trajectory.png)
+
+The no-turn baseline reached a max error of 23.19 m over the window. Adding the IMU heading brought it down to 17.23 m, about 25.7% lower. For both methods the error is largest at the very end of the window, which is what dead reckoning should do: drift keeps accumulating the longer GPS is gone.
+
+![Position error during dropout: no-turn vs IMU heading](figures/gps_walk_02_dropout_imu_error.png)
+
+One sign detail is worth recording. `heading_sign` is fixed at -1 because the device yaw increases clockwise while the East/North math angle increases counter-clockwise. I checked this once against the GPS course direction and then left it fixed. It is a frame relationship, not a value I tuned to make this walk look good.
+
+This is still far from solved. 17 m is a large error to accept, and holding speed constant ignores that real walking speed changes across those 15 seconds. The next step is to feed the IMU turn rate into the filter as a control input instead of correcting heading after the fact, and to update speed from the accelerometer instead of holding it fixed.
+
 ## Generated outputs
 
 Main result files:
@@ -99,6 +121,8 @@ Main result files:
 - `results/gps_walk_02_jump_kalman_summary.csv`
 - `results/gps_walk_02_jump_gated_kalman.csv`
 - `results/gps_walk_02_jump_gating_comparison_summary.csv`
+- `results/gps_walk_02_dropout_imu.csv`
+- `results/gps_walk_02_dropout_imu_summary.csv`
 
 Main scripts:
 
@@ -109,15 +133,18 @@ Main scripts:
 - `src/simulate_gps_dropout.py`
 - `src/simulate_gps_jump.py`
 - `src/compare_gps_jump_gating.py`
+- `src/build_gps_imu_dataset.py`
+- `src/inspect_heading_sources.py`
+- `src/simulate_gps_dropout_imu.py`
 
 ## Planned direction
 
 Next steps:
 
-- compare GPS-only smoothing against Kalman filtering
-- test a softer GPS reliability score instead of a hard gate
-- use IMU-derived features for sensor reliability checks
-- build an adaptive fusion experiment
+- feed the IMU turn rate into the filter as a control input, instead of correcting heading after the fact
+- update speed from the accelerometer during dropout instead of holding it constant
+- collect several synced walks so an adaptive or learned reliability model has enough data to be more than a fit to one walk
+- test a softer GPS reliability score instead of a hard innovation gate
 
 ## Limitations
 
@@ -128,4 +155,6 @@ Next steps:
 - the dropout experiment is simulated from logged GPS data, not a live sensor failure
 - the GPS jump experiment uses an injected offset, not a real spoofing device
 - the current innovation gate is a simple fixed-threshold rule, not an adaptive reliability model
+- the IMU dead-reckoning experiment holds speed constant and only corrects heading, so it cannot follow real speed changes during the outage
+- a 15 s outage is long for dead reckoning, and 17 m is still a large absolute error
 - future tests should include turns, stops, and live controlled GPS dropout
