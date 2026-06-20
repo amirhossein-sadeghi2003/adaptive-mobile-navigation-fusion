@@ -1,0 +1,2 @@
+dropout_start_s,dropout_end_s,dropout_samples,init_heading_deg,init_speed_mps,heading_sign,ekf_max_error_m,ekf_final_error_m,ekf_heading_std_end_deg
+55.0,70.0,28,135.98,0.624,-1.0,10.931,10.931,22.58

@@ -46,3 +46,5 @@ figures/*
 !results/gps_walk_02_heading_offsets.csv
 !results/gps_walk_02_dropout_imu.csv
 !results/gps_walk_02_dropout_imu_summary.csv
+!results/gps_walk_02_dropout_ekf.csv
+!results/gps_walk_02_dropout_ekf_summary.csv
