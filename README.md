@@ -17,6 +17,7 @@ This project uses real phone-collected GPS/IMU logs to build a small navigation-
 | GPS jump simulation | 122.8 s | 283 GPS samples | A simulated 22.4 m GPS position jump pulls the simple Kalman estimate away from the clean path, with position error reaching about 26.5 m. |
 | GPS jump with innovation gating | 122.8 s | 283 GPS samples | A simple innovation gate rejects all 25 jumped GPS updates and reduces max jump-window error from about 26.5 m to about 3.8 m. |
 | IMU-aided dropout dead reckoning | 122.8 s | 283 GPS samples | Over a simulated 55-70 s outage (28 withheld samples), adding IMU heading change to a constant-speed dead reckoning cut the max drift from about 23.2 m (no turning) to about 17.2 m, roughly 25.7% lower. |
+| EKF with heading in state | 122.8 s | 283 GPS samples | Putting heading in the EKF state and driving it with the IMU turn rate, on the same 55-70 s outage, brought max dropout error down to about 10.9 m, below the 17.2 m dead-reckoning result. |
 
 ## Longer GPS walk
 
@@ -107,6 +108,24 @@ One sign detail is worth recording. `heading_sign` is fixed at -1 because the de
 
 This is still far from solved. 17 m is a large error to accept, and holding speed constant ignores that real walking speed changes across those 15 seconds. The next step is to feed the IMU turn rate into the filter as a control input instead of correcting heading after the fact, and to update speed from the accelerometer instead of holding it fixed.
 
+## EKF with heading in the state
+
+The dead-reckoning test corrected heading after the fact: I picked one entry bearing, turned it with the IMU, and only then propagated position. This experiment folds heading into the filter itself. The state becomes `[x, y, v, theta]`, the IMU yaw change drives `theta` as a turn input at each step, and the position update stays the same GPS-only update as before. Because the prediction now multiplies speed by the sine and cosine of `theta`, the model is nonlinear, so the filter linearises it with a Jacobian. That is the only reason this is an EKF and not the earlier linear one.
+
+The part worth pausing on is how heading gets corrected at all. GPS measures position, never heading, and the measurement matrix only touches `x` and `y`. But the Jacobian couples speed and heading into the predicted position, so the covariance builds up a correlation between position and heading. When a fix arrives and the position residual is nonzero, the Kalman gain pushes part of that correction into `theta` and `v` too. A position-only sensor ends up cleaning the heading it never directly sees, which is exactly what the dead-reckoning version had no way to do.
+
+Run on the same 55-70 s outage (28 withheld samples), the EKF reached a maximum dropout error of about 10.9 m, against 17.2 m for the IMU dead reckoning and 23.2 m for the no-turn baseline.
+
+![EKF trajectory with GPS withheld 55-70 s](figures/gps_walk_02_dropout_ekf_trajectory.png)
+
+The heading uncertainty tells the honest version of the story. Outside the outage the filter holds its heading standard deviation near 13 deg. Across the 15 s with no GPS it inflates to about 22.6 deg, then relaxes back toward 13 deg once fixes return. The filter is aware it is coasting blind, and its own covariance shows it.
+
+![EKF error and heading uncertainty during dropout](figures/gps_walk_02_dropout_ekf_error.png)
+
+I want to be careful about the 10.9 vs 17.2 comparison, because it is not a clean single-variable test. The EKF enters the outage carrying a speed and heading that GPS has been correcting right up to that moment, while the dead-reckoning run froze a windowed-mean speed and a single entry bearing. So part of the gap comes from the better entry state, not only from the filter structure. The mechanism above is real, but the headline number flatters it. One smaller detail from the code: the initial heading and speed are seeded from the first GPS sample moving faster than 0.5 m/s, not from sample zero, because a near-stationary first fix has a meaningless course-over-ground.
+
+Even taken at face value, 11 m of peak error over a 15 s outage is still large, and all of this rests on a single walk. The next improvement is to stop holding speed fixed through the outage and correct it from the accelerometer, the same way heading is now carried in the filter instead of frozen.
+
 ## Generated outputs
 
 Main result files:
@@ -123,6 +142,8 @@ Main result files:
 - `results/gps_walk_02_jump_gating_comparison_summary.csv`
 - `results/gps_walk_02_dropout_imu.csv`
 - `results/gps_walk_02_dropout_imu_summary.csv`
+- `results/gps_walk_02_dropout_ekf.csv`
+- `results/gps_walk_02_dropout_ekf_summary.csv`
 
 Main scripts:
 
@@ -136,12 +157,12 @@ Main scripts:
 - `src/build_gps_imu_dataset.py`
 - `src/inspect_heading_sources.py`
 - `src/simulate_gps_dropout_imu.py`
+- `src/run_ekf_imu.py`
 
 ## Planned direction
 
 Next steps:
 
-- feed the IMU turn rate into the filter as a control input, instead of correcting heading after the fact
 - update speed from the accelerometer during dropout instead of holding it constant
 - collect several synced walks so an adaptive or learned reliability model has enough data to be more than a fit to one walk
 - test a softer GPS reliability score instead of a hard innovation gate
@@ -157,4 +178,6 @@ Next steps:
 - the current innovation gate is a simple fixed-threshold rule, not an adaptive reliability model
 - the IMU dead-reckoning experiment holds speed constant and only corrects heading, so it cannot follow real speed changes during the outage
 - a 15 s outage is long for dead reckoning, and 17 m is still a large absolute error
+- the EKF carries heading in its state but uses the IMU only as a turn input and the accelerometer not at all, so speed is corrected only when GPS returns
+- the EKF peak error is about 11 m over the same 15 s outage, still large, and rests on the same single walk
 - future tests should include turns, stops, and live controlled GPS dropout
